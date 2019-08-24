@@ -1,16 +1,7 @@
 package env;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -27,13 +18,9 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.ErrorHandler;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.ios.IOSDriver;
 
 
 public class DriverUtil {
@@ -70,66 +57,6 @@ public class DriverUtil {
 		return capability;
 	}
 
-	private static void uploadAppToSauceStorage(String appName, String appPath) {
-		System.out.println("Uploading App " + appName + " to sauce storage");
-		InputStream input;
-		try {
-			input = new FileInputStream(currentPath + "/src/main/java/platformConfigs/saucelab.properties");
-			prop.load(input);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-
-		String username = prop.getProperty("username");
-		String access_key = prop.getProperty("access_key");
-
-		String uploadURL = "https://saucelabs.com/rest/v1/storage/" + username + "/" + appName + "?overwrite=true";
-		String encoding = Base64.getEncoder().encodeToString((username + ":" + access_key).getBytes());
-
-		URLConnection urlconnection = null;
-		try {
-			File file = new File(appPath);
-			URL url = new URL(uploadURL);
-			urlconnection = url.openConnection();
-			urlconnection.setDoOutput(true);
-			urlconnection.setDoInput(true);
-
-			if (urlconnection instanceof HttpURLConnection) {
-				((HttpURLConnection) urlconnection).setRequestMethod("POST");
-				((HttpURLConnection) urlconnection).setRequestProperty("Content-type", "text/plain");
-				((HttpURLConnection) urlconnection).setRequestProperty("Authorization", "Basic " + encoding);
-				((HttpURLConnection) urlconnection).connect();
-			}
-
-			BufferedOutputStream bos = new BufferedOutputStream(urlconnection.getOutputStream());
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-			int i;
-			// read byte by byte until end of stream
-			while ((i = bis.read()) > 0) {
-				bos.write(i);
-			}
-			bis.close();
-			bos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-
-			int responseCode = ((HttpURLConnection) urlconnection).getResponseCode();
-			if ((responseCode >= 200) && (responseCode <= 202)) {
-				System.out.println("App uploaded successfully");
-			} else {
-				System.out.println("App upload failed");
-			}
-			System.out.println("responseCode : " + responseCode);
-
-			((HttpURLConnection) urlconnection).disconnect();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public static WebDriver getDefaultDriver() {
 		if (driver != null) {
 			return driver;
@@ -159,25 +86,6 @@ public class DriverUtil {
 		}
 
 		switch (enviroment) {
-		case "local":
-			if (platform.equals("android"))
-				driver = androidDriver(capability);
-			else if (platform.equals("ios"))
-				driver = iosDriver(capability);
-			else {
-				System.out.println("unsupported platform");
-				System.exit(0);
-			}
-			break;
-
-		case "browserstack":
-			driver = browserStackDriver(capability);
-			break;
-
-		case "saucelab":
-			driver = saucelabDriver(capability);
-			break;
-
 		case "desktop":
 			DesiredCapabilities capabilities = null;
 			capabilities = DesiredCapabilities.firefox();
@@ -193,99 +101,6 @@ public class DriverUtil {
 			System.exit(0);
 		}
 
-		return driver;
-	}
-
-	/*
-	 * Returns saucelab remote driver instance by reading saucelab configuration
-	 * from platformConfigs/saucelab.properties
-	 * 
-	 * @param DesiredCapabilities create capabilities by reading browser config.
-	 * 
-	 * @return RemoteWebDriver
-	 */
-	private static WebDriver saucelabDriver(DesiredCapabilities capabilities) {
-		URL remoteDriverURL = null;
-		RemoteWebDriver remoteDriver = null;
-
-		// set app path for app testing
-		if (prop.containsKey("app")) {
-			String appName = prop.getProperty("app").split(":")[1];
-			String appPath = currentPath + "/src/main/java/appUnderTest/" + appName;
-
-			File appFile = new File(appPath);
-			if (appFile.exists()) {
-				// prop.setProperty("app", appPath);
-				uploadAppToSauceStorage(appName, appPath);
-			} else {
-				System.out.println("Exception : No app with name '" + appName + "' found in appUnderTest directory");
-				System.exit(0);
-			}
-		}
-
-		try {
-			InputStream input = new FileInputStream(currentPath + "/src/main/java/platformConfigs/saucelab.properties");
-			prop.load(input);
-
-			String url = prop.getProperty("protocol") + "://" + prop.getProperty("username") + ":"
-					+ prop.getProperty("access_key") + prop.getProperty("url");
-
-			input.close();
-			prop.clear();
-			remoteDriverURL = new URL(url);
-			remoteDriver = new RemoteWebDriver(remoteDriverURL, capability);
-		} catch (Exception e) {
-			System.out.println("\nException Occured :\n");
-			System.out.println(e.getMessage());
-			System.exit(0);
-		}
-		return remoteDriver;
-	}
-
-	/*
-	 * Returns browserStack remote driver instance by reading browserStack
-	 * configuration from platformConfigs/browserstack.properties
-	 * 
-	 * @param DesiredCapabilities create capabilities by reading browser config.
-	 * 
-	 * @return RemoteWebDriver
-	 */
-	private static WebDriver browserStackDriver(DesiredCapabilities capabilities) {
-		URL remoteDriverURL = null;
-		try {
-			InputStream input = new FileInputStream(
-					currentPath + "/src/main/java/platformConfigs/browserstack.properties");
-			prop.load(input);
-
-			String url = prop.getProperty("protocol") + "://" + prop.getProperty("username") + ":"
-					+ prop.getProperty("access_key") + prop.getProperty("url");
-
-			input.close();
-			prop.clear();
-			remoteDriverURL = new URL(url);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new RemoteWebDriver(remoteDriverURL, capability);
-	}
-
-	private static WebDriver androidDriver(DesiredCapabilities capabilities) {
-		String port = "4723";
-		try {
-			driver = (AndroidDriver) new AndroidDriver(new URL("http://127.0.0.1:" + port + "/wd/hub"), capabilities);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return driver;
-	}
-
-	private static WebDriver iosDriver(DesiredCapabilities capabilities) {
-		String port = "4723";
-		try {
-			driver = (IOSDriver) new IOSDriver(new URL("http://127.0.0.1:" + port + "/wd/hub"), capabilities);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
 		return driver;
 	}
 
