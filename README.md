@@ -7,9 +7,6 @@
     - Cucumber
 5. Browser driver (make sure you have your desired browser driver and class path is set)
 
-### Framework set up
-Fork / Clone repository from [here]( https://github.com/amiya-pattnaik/selenium-cucumber-java) or download zip and set it up in your local workspace.
-
 ### Run Some Sample Tests
 Open terminal (MAC OSX) or command prompt / power shell (for windows OS) and navigate to the project directory
 type `mvn clean test` command to run features. With this command it will invoke the default Firefox browser and will execute the tests.
