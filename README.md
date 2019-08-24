@@ -1,7 +1,8 @@
 ### Installation (pre-requisites)
 1. JDK 1.8+ (make sure Java class path is set)
 2. Maven (make sure .m2 class path is set)
-3. Install Chrome Driver - npm install chromedriver
+3. Install Chrome Driver
+	npm install chromedriver
 	
 
 ### Run Some Sample Tests
@@ -12,6 +13,6 @@ type `mvn clean test` command to run features. With this command it will invoke 
 browser_name can be one of following but make sure that browser’s driver file are present and specified in system variable. -- ff -- chrome -- ie -- safari etc.
 
 
-##### Allure Report:
+### Allure Report:
 You can generate a report using one of the following command.
 - `mvn allure:serve`
