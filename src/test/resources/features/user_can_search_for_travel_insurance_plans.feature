@@ -1,5 +1,5 @@
 Feature: Login
-        As a user I should able to login into my app
+        As user I should able to search for the travel insurance plans
  
  Scenario: I login with valid credential
  		Given I navigate to "https://www.gobear.com/ph?x_session_type=UAT"
@@ -21,8 +21,3 @@ Feature: Login
 		And I select "26" and "Dec" and "2021" as start date
 		And I click on See More button
 		And I set 1000000 min and 2000000 max for "Personal Accident" slider
-		
- 		
- 
-# Scenario: Close browser
-# 		Then I close browser
