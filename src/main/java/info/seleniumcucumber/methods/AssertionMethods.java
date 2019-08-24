@@ -1,11 +1,13 @@
 package info.seleniumcucumber.methods;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-
 
 public class AssertionMethods extends SelectElementByType implements BaseTest {
 	// This file contains assertion methods which are called from
@@ -360,5 +362,60 @@ public class AssertionMethods extends SelectElementByType implements BaseTest {
 			throw new TestCaseFailed("Option Not Selected From Dropwdown");
 		else if ((actualValue.equals(option)) && (!shouldBeSelected))
 			throw new TestCaseFailed("Option Selected From Dropwdown");
+	}
+
+	public void checkNumberOfElementsMoreThan(String accessType, String accessName, int expectedNumber,
+			boolean testCase) throws TestCaseFailed {
+		int countElements = countElements(accessType, accessName);
+
+		if (testCase) {
+			if (countElements < expectedNumber)
+				throw new TestCaseFailed("Number Of elements is less than " + expectedNumber);
+		} else {
+			if (countElements >= expectedNumber)
+				throw new TestCaseFailed("Number Of elements is bigger than or equal to " + expectedNumber);
+		}
+	}
+
+	public int countElements(String accessType, String accessName) {
+		element = wait.until(ExpectedConditions.presenceOfElementLocated(getelementbytype(accessType, accessName)));
+		return element.findElements(getelementbytype(accessType, accessName)).size();
+	}
+
+	public void checkElementsText(String accessType, String accessName, String expectedText, boolean testCase)
+			throws TestCaseFailed {
+		element = wait.until(ExpectedConditions.presenceOfElementLocated(getelementbytype(accessType, accessName)));
+
+		List<WebElement> elements = element.findElements(getelementbytype(accessType, accessName));
+		for (WebElement ele : elements) {
+			String elementText = ele.getText();
+			if (testCase) {
+				if (!elementText.equals(expectedText))
+					throw new TestCaseFailed("Text Not Matched");
+			} else {
+				if (elementText.equals(expectedText))
+					throw new TestCaseFailed("Text Matched");
+			}
+		}
+	}
+
+	public void checkElementsValueSort(String accessType, String accessName, String sortOption, boolean testCase)
+			throws TestCaseFailed {
+		element = wait.until(ExpectedConditions.presenceOfElementLocated(getelementbytype(accessType, accessName)));
+		List<String> listValue = new ArrayList<String>();
+		
+		List<WebElement> elements = element.findElements(getelementbytype(accessType, accessName));
+		for (WebElement ele : elements) {
+			listValue.add(ele.getText());
+		}
+		List <String> clonedList=new ArrayList<String>(listValue);
+		Collections.sort(clonedList,Collections.reverseOrder());
+		if (testCase) {
+			if (!listValue.equals(clonedList))
+				throw new TestCaseFailed("List is not sorted");
+		} else {
+			if (listValue.equals(clonedList))
+				throw new TestCaseFailed("List is sorted");
+		}
 	}
 }

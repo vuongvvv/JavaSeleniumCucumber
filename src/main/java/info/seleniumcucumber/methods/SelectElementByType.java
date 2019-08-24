@@ -11,7 +11,7 @@ public class SelectElementByType {
 
 	public SelectElementByType() {
 		driver = DriverUtil.getDefaultDriver();
-		wait = new WebDriverWait(driver, 30);
+		wait = new WebDriverWait(driver, 5);
 	}
 
 	/**

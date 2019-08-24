@@ -37,7 +37,7 @@ import io.appium.java_client.ios.IOSDriver;
 
 
 public class DriverUtil {
-	public static long DEFAULT_WAIT = 20;
+	public static long DEFAULT_WAIT = 5;
 	protected static WebDriver driver = null;
 	static String currentPath = System.getProperty("user.dir");
 	static Properties prop = new Properties();
