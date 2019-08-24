@@ -2,7 +2,7 @@
 1. JDK 1.8+ (make sure Java class path is set)
 2. Maven (make sure .m2 class path is set)
 3. Install Chrome Driver
-	npm install chromedriver
+- `npm install chromedriver`
 	
 
 ### Run Some Sample Tests
