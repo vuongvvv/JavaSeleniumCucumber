@@ -221,4 +221,10 @@ public class NavigateMethods extends SelectElementByType implements BaseTest {
 	public void switchToDefaultContent() {
 		driver.switchTo().defaultContent();
 	}
+
+	public void dragAndDropByOffset(String accessType, String accessName, int xOffset, int yOffset) {
+		Actions action = new Actions(driver);
+		element = wait.until(ExpectedConditions.presenceOfElementLocated(getelementbytype(accessType, accessName)));
+		action.dragAndDropBy(element, xOffset, yOffset).perform();
+	}
 }

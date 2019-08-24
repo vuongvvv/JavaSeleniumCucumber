@@ -19,6 +19,8 @@ Feature: Login
 		When I select "annual trip" policy details
 		And I select "Asia" destination
 		And I select "26" and "Dec" and "2021" as start date
+		And I click on See More button
+		And I set 1000000 min and 2000000 max for "Personal Accident" slider
 		
  		
  

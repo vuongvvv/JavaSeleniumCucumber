@@ -21,6 +21,8 @@ public class SearchResultsStepDefinitions implements BaseTest {
 	String drdDestination = "//div[@class='select-component']";
 	String drdDestinationItem = "(//span[@class='two-col'][text()='_DYNAMIC_0'])[1]//following-sibling::link";
 	String btnSeeMore = "//a[@class='btn-ripple more']";
+	String btnSliderMin = "//label[contains(text(),'_DYNAMIC_0')]//following-sibling::div//div[@class='slider-handle min-slider-handle round']";
+	String btnSliderMax = "//label[contains(text(),'_DYNAMIC_0')]//following-sibling::div//div[@class='slider-handle max-slider-handle round']";
 
 	@When("^I select \"([^\"]*)\" filter in Insurers$")
 	public void select_filter_option_insurers(String filterOption) throws Throwable {
@@ -48,13 +50,29 @@ public class SearchResultsStepDefinitions implements BaseTest {
 	}
 
 	@When("^I click on See More button$")
-	public void click_see_more_button(String destination) throws Throwable {
+	public void click_see_more_button() throws Throwable {
+		wait_until_number_of_insurance_plan_changed();
 		clickObj.click("xpath", btnSeeMore);
 	}
-	
-	@When("^I set (\\d+) min and (\\d+) max for personal accident$")
-	public void verify_number_travel_insurance_plans(int minValue, int maxValue) throws Throwable {
-		int xMinCoor= 
+
+	@When("^I set (\\d+) min and (\\d+) max for \"([^\"]*)\" slider$")
+	public void verify_number_travel_insurance_plans(int minValue, int maxValue, String sliderName) throws Throwable {
+		String minSliderElement = btnSliderMin.replace("_DYNAMIC_0", sliderName);
+		String maxSliderElement = btnSliderMax.replace("_DYNAMIC_0", sliderName);
+		int xMinCoor = coordinationObj.getHorizontalPosition("xpath", minSliderElement);
+		int xMaxCoor = coordinationObj.getHorizontalPosition("xpath", maxSliderElement);
+		int minValueSlider = Integer
+				.parseInt(assertionObj.getElementAttribute("xpath", minSliderElement, "aria-valuemin"));
+		int maxValueSlider = Integer
+				.parseInt(assertionObj.getElementAttribute("xpath", minSliderElement, "aria-valuemax"));
+
+		int offsetToMoveMinSlider = (xMaxCoor - xMinCoor) * minValue / (maxValueSlider - minValueSlider);
+		navigationObj.dragAndDropByOffset("xpath", minSliderElement, offsetToMoveMinSlider, 0);
+
+		int offsetToMoveMaxSlider = (xMaxCoor - xMinCoor) * (maxValueSlider - maxValue)
+				/ (maxValueSlider - minValueSlider) * -1;
+		navigationObj.dragAndDropByOffset("xpath", maxSliderElement, offsetToMoveMaxSlider, 0);
+		wait_until_number_of_insurance_plan_changed();
 	}
 
 	@Then("^I see more than (\\d+) travel insurance plans in the search results$")
