@@ -1,7 +1,7 @@
-Feature: Login
+Feature: Search Travel Insurance Plans
         As user I should able to search for the travel insurance plans
  
- Scenario: I login with valid credential
+ Scenario: As user I should able to search for the travel insurance plans
  		Given I navigate to "https://www.gobear.com/ph?x_session_type=UAT"
  		And I select "Insurance" tab
  		And I select "Travel" subtab of insurance
